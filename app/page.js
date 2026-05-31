@@ -20,9 +20,10 @@ const PRODUCTS = [
     tagline: 'Énergie tropicale',
     description: 'Le rouge profond de l\u0027hibiscus, l\u0027éclat de l\u0027ananas et la fraîcheur de la menthe.',
     ingredients: ['Bissap', 'Ananas', 'Menthe'],
-    color: 'from-rose-600 via-red-500 to-rose-700',
-    accent: '#a02440',
-    image: 'https://customer-assets.emergentagent.com/job_b5fcea21-fc07-4b62-8bdd-7fb278c3607f/artifacts/k5x9r7kb_WhatsApp%20Image%202026-05-31%20at%2019.09.03.jpeg',
+    color: 'from-rose-700 via-red-800 to-rose-900',
+    accent: '#7a1830',
+    image: 'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg',
+    imagePos: '61% 72%',
     emoji: '🌺',
   },
   {
@@ -31,9 +32,10 @@ const PRODUCTS = [
     tagline: 'Purifiant & vif',
     description: 'Pomme verte, gingembre piquant, citron éclatant et menthe fraîche. La detox premium.',
     ingredients: ['Pomme', 'Gingembre', 'Citron', 'Menthe'],
-    color: 'from-emerald-500 via-green-600 to-emerald-700',
-    accent: '#2e7d4f',
-    image: 'https://images.unsplash.com/photo-1622597467836-f3e6707e1191?w=800&q=80',
+    color: 'from-lime-500 via-yellow-500 to-amber-600',
+    accent: '#a8b73a',
+    image: 'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg',
+    imagePos: '16% 72%',
     emoji: '🍏',
   },
   {
@@ -44,7 +46,8 @@ const PRODUCTS = [
     ingredients: ['Carotte', 'Orange', 'Menthe'],
     color: 'from-orange-400 via-amber-500 to-orange-600',
     accent: '#e67e22',
-    image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=800&q=80',
+    image: 'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg',
+    imagePos: '39% 72%',
     emoji: '🍊',
   },
   {
@@ -53,9 +56,10 @@ const PRODUCTS = [
     tagline: 'Hydratation extrême',
     description: 'Pastèque juteuse, citron pétillant et menthe glaciale. La fraîcheur ultime de l\u0027été.',
     ingredients: ['Pastèque', 'Citron', 'Menthe'],
-    color: 'from-pink-500 via-rose-500 to-red-500',
+    color: 'from-pink-500 via-rose-500 to-red-600',
     accent: '#d63951',
-    image: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=800&q=80',
+    image: 'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg',
+    imagePos: '84% 72%',
     emoji: '🍉',
   },
 ]
@@ -306,8 +310,8 @@ function Hero({ onOrder, onScrollSaveurs }) {
               className="relative rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-black/5"
             >
               <img
-                src="https://customer-assets.emergentagent.com/job_b5fcea21-fc07-4b62-8bdd-7fb278c3607f/artifacts/non7tytf_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%284%29.jpeg"
-                alt="Jus Frais Maison"
+                src="https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg"
+                alt="Jus Frais Maison - 4 saveurs"
                 className="w-full h-full object-cover"
               />
             </motion.div>
@@ -355,8 +359,16 @@ function ProductCard({ p, idx, onOrder }) {
       className="group"
     >
       <Card className="overflow-hidden border-foreground/10 rounded-3xl bg-card hover:shadow-2xl transition-all duration-500">
-        <div className={`relative aspect-[4/5] bg-gradient-to-br ${p.color} overflow-hidden`}>
-          <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80 group-hover:scale-110 transition-transform duration-700" />
+        <div
+          className={`relative aspect-[4/5] bg-gradient-to-br ${p.color} overflow-hidden`}
+          style={{
+            backgroundImage: `url(${p.image})`,
+            backgroundSize: '380% auto',
+            backgroundPosition: p.imagePos || 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-black/10" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
             <Badge className="glass border-white/30 text-white text-[10px] uppercase tracking-[0.15em] px-2.5 py-1">{p.tagline}</Badge>
@@ -607,10 +619,11 @@ function Testimonials() {
 
 function InstagramPreview() {
   const imgs = [
+    'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg',
+    'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/ij6a9lzp_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%285%29.jpeg',
+    'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/j1xmnuag_WhatsApp%20Image%202026-05-31%20at%2019.09.04.jpeg',
     'https://customer-assets.emergentagent.com/job_b5fcea21-fc07-4b62-8bdd-7fb278c3607f/artifacts/k5x9r7kb_WhatsApp%20Image%202026-05-31%20at%2019.09.03.jpeg',
     'https://customer-assets.emergentagent.com/job_b5fcea21-fc07-4b62-8bdd-7fb278c3607f/artifacts/ad1rlr8v_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%281%29.jpeg',
-    'https://customer-assets.emergentagent.com/job_b5fcea21-fc07-4b62-8bdd-7fb278c3607f/artifacts/hzsafklx_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%282%29.jpeg',
-    'https://customer-assets.emergentagent.com/job_b5fcea21-fc07-4b62-8bdd-7fb278c3607f/artifacts/a6bekafm_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%283%29.jpeg',
     'https://customer-assets.emergentagent.com/job_b5fcea21-fc07-4b62-8bdd-7fb278c3607f/artifacts/non7tytf_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%284%29.jpeg',
   ]
   return (
