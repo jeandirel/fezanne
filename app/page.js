@@ -429,7 +429,7 @@ function Pourquoi() {
 }
 
 function Livraison() {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&bgcolor=ffffff&color=1f3a2e&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : 'https://jus-frais-marseille.preview.emergentagent.com')}`
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&bgcolor=ffffff&color=1f3a2e&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_BASE_URL || ''))}`
   return (
     <section id="livraison" className="py-24 md:py-32 bg-[#1f3a2e] text-amber-50 relative overflow-hidden">
       <div className="absolute inset-0 opacity-10">
