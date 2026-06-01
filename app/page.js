@@ -26,9 +26,7 @@ const PRODUCTS = [
 ]
 
 const FORMATS = [
-  { size: '250 ml', price: 3, label: 'Découverte' },
-  { size: '380 ml', price: 4, label: 'Classique', popular: true },
-  { size: '500 ml', price: 5, label: 'Grande soif' },
+  { size: '380 ml', price: 5, label: 'Unique', popular: true },
 ]
 
 const BENEFITS = [
@@ -294,7 +292,7 @@ function Hero({ onOpenCart, onScrollSaveurs }) {
 
 // ========== ProductCard (e-commerce) ==========
 function ProductCard({ p, idx, onAdd }) {
-  const [format, setFormat] = useState(FORMATS[1])
+  const [format, setFormat] = useState(FORMATS[0])
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
 
@@ -333,18 +331,10 @@ function ProductCard({ p, idx, onAdd }) {
         </div>
         <div className="p-5 flex flex-col flex-1">
           <p className="text-sm text-muted-foreground mb-4">{p.description}</p>
-          {/* Format selector */}
-          <div className="grid grid-cols-3 gap-1.5 mb-3">
-            {FORMATS.map(f => (
-              <button
-                key={f.size}
-                onClick={() => setFormat(f)}
-                className={`py-2 rounded-xl text-xs font-medium border transition-all ${format.size === f.size ? 'border-[#1f3a2e] bg-[#1f3a2e] text-amber-50' : 'border-border bg-card hover:border-foreground/30'}`}
-              >
-                <div className="font-semibold">{f.size}</div>
-                <div className="text-[10px] opacity-80 mt-0.5">{f.price} €</div>
-              </button>
-            ))}
+          {/* Format info */}
+          <div className="flex justify-between items-center py-2.5 px-4 rounded-xl text-xs font-medium border border-[#1f3a2e]/20 bg-[#1f3a2e]/5 dark:bg-[#1f3a2e]/10 mb-3">
+            <span className="text-muted-foreground font-medium">Format</span>
+            <span className="font-semibold text-[#1f3a2e] dark:text-amber-200">{format.size} • {format.price} €</span>
           </div>
           {/* Qty + add */}
           <div className="flex items-center gap-2 mt-auto">
@@ -385,17 +375,17 @@ function Formats() {
       <FloatingLeaves />
       <div className="max-w-7xl mx-auto px-5 md:px-8 relative">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-          <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">Formats & prix</div>
-          <h2 className="font-serif text-4xl md:text-6xl font-medium tracking-tight">Choisissez votre <span className="italic">soif</span>.</h2>
+          <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">Format & Prix</div>
+          <h2 className="font-serif text-4xl md:text-6xl font-medium tracking-tight">Le format <span className="italic">idéal</span>.</h2>
         </motion.div>
-        <div className="grid md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+        <div className="flex justify-center max-w-sm mx-auto">
           {FORMATS.map((f, i) => (
-            <motion.div key={f.size} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -6 }} className={`relative rounded-3xl p-8 text-center border ${f.popular ? 'bg-[#1f3a2e] text-amber-50 border-[#1f3a2e] shadow-2xl scale-[1.03]' : 'glass border-foreground/10'}`}>
-              {f.popular && (<Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#a02440] text-white border-0 px-3">Plus populaire</Badge>)}
-              <div className={`text-xs uppercase tracking-[0.25em] mb-3 ${f.popular ? 'text-amber-200/80' : 'text-muted-foreground'}`}>{f.label}</div>
+            <motion.div key={f.size} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -6 }} className="relative rounded-3xl p-8 text-center border bg-[#1f3a2e] text-amber-50 border-[#1f3a2e] shadow-2xl scale-[1.03] w-full">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#a02440] text-white border-0 px-3">Format Unique</Badge>
+              <div className="text-xs uppercase tracking-[0.25em] mb-3 text-amber-200/80">Bouteille</div>
               <div className="font-serif text-5xl md:text-6xl font-semibold mb-3">{f.size}</div>
-              <div className={`text-4xl font-serif ${f.popular ? 'text-amber-200' : 'text-[#a02440]'}`}>{f.price} €</div>
-              <div className={`text-xs mt-4 ${f.popular ? 'text-amber-100/70' : 'text-muted-foreground'}`}>Toutes saveurs disponibles</div>
+              <div className="text-4xl font-serif text-amber-200">{f.price} €</div>
+              <div className="text-xs mt-4 text-amber-100/70">Toutes saveurs disponibles</div>
             </motion.div>
           ))}
         </div>
