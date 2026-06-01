@@ -91,7 +91,7 @@ function useCart() {
         next[idx] = { ...next[idx], qty: next[idx].qty + qty }
         return next
       }
-      return [...prev, { productId: product.id, name: product.name, emoji: product.emoji, size: format.size, price: format.price, qty }]
+      return [...prev, { productId: product.id, name: product.name, emoji: product.emoji, size: format.size, price: product.price || format.price, qty }]
     })
   }
   const setQty = (productId, size, qty) => {
@@ -303,16 +303,19 @@ function ProductCard({ p, idx, onAdd }) {
     setTimeout(() => setAdded(false), 1500)
   }
 
+  const price = p.price || format.price
+
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ delay: idx * 0.08, duration: 0.6 }} whileHover={{ y: -4 }} className="group">
       <Card className="overflow-hidden border-foreground/10 rounded-3xl bg-card hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
         <div
           className={`relative aspect-[4/5] bg-gradient-to-br ${p.color} overflow-hidden`}
           style={{
-            backgroundImage: `url(${HERO_IMG})`,
-            backgroundSize: '380% auto',
+            backgroundImage: `url(${p.image || HERO_IMG})`,
+            backgroundSize: p.imageZoom ? `${p.imageZoom}% auto` : '380% auto',
             backgroundPosition: p.imagePos,
             backgroundRepeat: 'no-repeat',
+            filter: `brightness(${p.imageBrightness ?? 100}%) contrast(${p.imageContrast ?? 100}%)`,
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/10" />
@@ -340,7 +343,7 @@ function ProductCard({ p, idx, onAdd }) {
               <button onClick={() => setQty(qty + 1)} className="w-7 h-7 rounded-full hover:bg-background flex items-center justify-center"><Plus className="w-3.5 h-3.5" /></button>
             </div>
             <Button onClick={handleAdd} className={`flex-1 rounded-full transition-all btn-shine ${added ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-foreground text-background hover:opacity-90'}`}>
-              {added ? <><Check className="w-4 h-4 mr-1" /> Ajouté</> : <><ShoppingBag className="w-4 h-4 mr-1.5" /> {fmtEuroSimple(format.price * qty)}</>}
+              {added ? <><Check className="w-4 h-4 mr-1" /> Ajouté</> : <><ShoppingBag className="w-4 h-4 mr-1.5" /> {fmtEuroSimple(price * qty)}</>}
             </Button>
           </div>
         </div>
@@ -349,7 +352,7 @@ function ProductCard({ p, idx, onAdd }) {
   )
 }
 
-function Saveurs({ onAdd }) {
+function Saveurs({ onAdd, products }) {
   return (
     <section id="saveurs" className="py-24 md:py-32 relative">
       <div className="max-w-7xl mx-auto px-5 md:px-8">
@@ -358,7 +361,7 @@ function Saveurs({ onAdd }) {
           <h2 className="font-serif text-4xl md:text-6xl font-medium tracking-tight">Quatre recettes, <span className="italic">une obsession</span> : la fraîcheur.</h2>
         </motion.div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
-          {PRODUCTS.map((p, i) => <ProductCard key={p.id} p={p} idx={i} onAdd={onAdd} />)}
+          {products.map((p, i) => <ProductCard key={p.id} p={p} idx={i} onAdd={onAdd} />)}
         </div>
       </div>
     </section>
@@ -823,6 +826,7 @@ function App() {
   const [dark, setDark] = useState(false)
   const [openMenu, setOpenMenu] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
+  const [products, setProducts] = useState([])
   const cart = useCart()
 
   useEffect(() => {
@@ -836,10 +840,21 @@ function App() {
     if (typeof window !== 'undefined') localStorage.setItem('jfm-theme', dark ? 'dark' : 'light')
   }, [dark])
 
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) setProducts(data)
+      })
+      .catch(err => console.error('Error fetching products:', err))
+  }, [])
+
   const handleAdd = (product, format, qty) => {
     cart.add(product, format, qty)
   }
   const scrollSaveurs = () => document.getElementById('saveurs')?.scrollIntoView({ behavior: 'smooth' })
+
+  const displayProducts = products.length > 0 ? products : PRODUCTS
 
   return (
     <>
@@ -847,7 +862,7 @@ function App() {
       <div className="min-h-screen bg-background text-foreground">
         <Navbar dark={dark} setDark={setDark} openMenu={openMenu} setOpenMenu={setOpenMenu} onOpenCart={() => setCartOpen(true)} cartCount={cart.count} />
         <Hero onOpenCart={() => setCartOpen(true)} onScrollSaveurs={scrollSaveurs} />
-        <Saveurs onAdd={handleAdd} />
+        <Saveurs onAdd={handleAdd} products={displayProducts} />
         <Formats />
         <Pourquoi />
         <Livraison />
