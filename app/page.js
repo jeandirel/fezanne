@@ -331,11 +331,7 @@ function ProductCard({ p, idx, onAdd }) {
         </div>
         <div className="p-5 flex flex-col flex-1">
           <p className="text-sm text-muted-foreground mb-4">{p.description}</p>
-          {/* Volume info */}
-          <div className="flex justify-between items-center py-2.5 px-4 rounded-xl text-xs font-medium border border-[#1f3a2e]/20 bg-[#1f3a2e]/5 dark:bg-[#1f3a2e]/10 mb-3">
-            <span className="text-muted-foreground font-medium">Bouteille</span>
-            <span className="font-semibold text-[#1f3a2e] dark:text-amber-200">{format.size} • {format.price} €</span>
-          </div>
+
           {/* Qty + add */}
           <div className="flex items-center gap-2 mt-auto">
             <div className="flex items-center bg-secondary rounded-full px-1 py-1">
