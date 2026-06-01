@@ -313,7 +313,7 @@ export default function AdminPage() {
     )
   }
 
-  const ingredientsList = formIngredients.split(',').map(i => i.trim()).filter(Boolean)
+  const ingredientsList = (formIngredients || '').split(',').map(i => i.trim()).filter(Boolean)
 
   return (
     <div className="min-h-screen bg-[#0f1f18] text-amber-50 p-5 md:p-8">
@@ -358,7 +358,7 @@ export default function AdminPage() {
             </div>
             
             <div className="grid sm:grid-cols-2 gap-4">
-              {products.map(p => (
+              {Array.isArray(products) && products.filter(Boolean).map(p => (
                 <button
                   key={p.id}
                   onClick={() => selectProductForEdit(p)}

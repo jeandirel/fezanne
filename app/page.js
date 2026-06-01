@@ -326,7 +326,7 @@ function ProductCard({ p, idx, onAdd }) {
           <div className="absolute bottom-4 left-4 right-4 text-white">
             <div className="font-serif text-2xl md:text-3xl font-semibold drop-shadow-lg">{p.name}</div>
             <div className="flex flex-wrap gap-1 mt-2">
-              {p.ingredients.map(i => (
+              {Array.isArray(p.ingredients) && p.ingredients.map(i => (
                 <span key={i} className="text-[10px] uppercase tracking-wider bg-white/15 backdrop-blur px-2 py-0.5 rounded-full border border-white/20">{i}</span>
               ))}
             </div>
@@ -854,7 +854,7 @@ function App() {
   }
   const scrollSaveurs = () => document.getElementById('saveurs')?.scrollIntoView({ behavior: 'smooth' })
 
-  const displayProducts = products.length > 0 ? products : PRODUCTS
+  const displayProducts = (Array.isArray(products) && products.length > 0) ? products.filter(Boolean) : PRODUCTS
 
   return (
     <>
