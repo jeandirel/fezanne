@@ -508,7 +508,7 @@ function Footer() {
         <div className="grid md:grid-cols-3 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">🌿</span>
+              <a href="/admin" className="text-2xl hover:opacity-85 transition-opacity" title="Admin">🌿</a>
               <div className="font-serif text-xl">JUS FRAIS MAISON</div>
             </div>
             <p className="text-sm text-amber-50/60 max-w-xs">Des jus frais artisanaux préparés chaque matin à Marseille. 100% naturel, sans conservateurs.</p>
@@ -533,7 +533,7 @@ function Footer() {
           </div>
         </div>
         <div className="border-t border-amber-50/10 pt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-amber-50/50">
-          <div>© {new Date().getFullYear()} Jus Frais Maison — Marseille. Fait avec ❤.</div>
+          <div>© {new Date().getFullYear()} Jus Frais Maison — Marseille. Fait avec ❤. <a href="/admin" className="opacity-0 hover:opacity-30 transition-opacity ml-1 cursor-default text-[8px] select-none" aria-label="admin">.</a></div>
           <div>Site premium — 100% artisanal</div>
         </div>
       </div>
