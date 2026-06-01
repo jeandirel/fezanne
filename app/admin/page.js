@@ -10,8 +10,10 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Plus, Trash2, ArrowLeft, Check, ShoppingBag, Save, Lock, LogOut,
-  Sparkles, RefreshCw, Eye, Image as ImageIcon, Sliders, Type, DollarSign
+  Sparkles, RefreshCw, Eye, Image as ImageIcon, Sliders, Type, DollarSign,
+  Copy, Search
 } from 'lucide-react'
+import { toast, Toaster } from 'sonner'
 
 const HERO_IMG = 'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg'
 
@@ -31,7 +33,10 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState('')
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [stats, setStats] = useState({ count: 0, totalRevenue: 0 })
   
   // Form fields
   const [formId, setFormId] = useState('')
@@ -49,8 +54,6 @@ export default function AdminPage() {
   const [brightness, setBrightness] = useState(100)
   const [contrast, setContrast] = useState(100)
 
-  const [notification, setNotification] = useState(null)
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedUser = localStorage.getItem('jfm-admin-user')
@@ -59,12 +62,15 @@ export default function AdminPage() {
         setUsername(savedUser)
         setPassword(savedPass)
         verifyCredentials(savedUser, savedPass)
+      } else {
+        setInitialLoading(false)
       }
     }
   }, [])
 
   const verifyCredentials = async (userToVerify, passToVerify) => {
     setLoading(true)
+    setInitialLoading(true)
     try {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
@@ -77,11 +83,22 @@ export default function AdminPage() {
         const prodRes = await fetch('/api/products')
         const data = await prodRes.json()
         setProducts(data)
+        
+        // Fetch stats if available
+        try {
+          const statsRes = await fetch('/api/orders/stats')
+          const statsData = await statsRes.json()
+          if (statsData) setStats(statsData)
+        } catch (err) {
+          console.error('Error fetching stats:', err)
+        }
+
         setIsAuth(true)
         if (typeof window !== 'undefined') {
           localStorage.setItem('jfm-admin-user', userToVerify)
           localStorage.setItem('jfm-admin-pass', passToVerify)
         }
+        toast.success('Connexion réussie !')
       } else {
         setAuthError('Nom d\'utilisateur ou mot de passe incorrect.')
         setIsAuth(false)
@@ -94,6 +111,7 @@ export default function AdminPage() {
       setAuthError('Erreur de connexion au serveur.')
     } finally {
       setLoading(false)
+      setInitialLoading(false)
     }
   }
 
@@ -113,22 +131,18 @@ export default function AdminPage() {
     setIsAuth(false)
     setProducts([])
     setSelectedProduct(null)
-  }
-
-  const showNotification = (msg, type = 'success') => {
-    setNotification({ msg, type })
-    setTimeout(() => setNotification(null), 3000)
+    toast.info('Session fermée.')
   }
 
   const selectProductForEdit = (p) => {
     setSelectedProduct(p)
     setFormId(p.id)
     setFormName(p.name)
-    setFormTagline(p.tagline)
-    setFormDescription(p.description)
+    setFormTagline(p.tagline || '')
+    setFormDescription(p.description || '')
     setFormIngredients(Array.isArray(p.ingredients) ? p.ingredients.join(', ') : p.ingredients || '')
-    setFormColor(p.color)
-    setFormEmoji(p.emoji)
+    setFormColor(p.color || 'from-rose-700 via-red-800 to-rose-900')
+    setFormEmoji(p.emoji || '🌿')
     setFormPrice(p.price || 5)
     setFormImage(p.image || '')
     
@@ -146,6 +160,35 @@ export default function AdminPage() {
     setZoom(p.imageZoom || 380)
     setBrightness(p.imageBrightness ?? 100)
     setContrast(p.imageContrast ?? 100)
+  }
+
+  const handleDuplicateProduct = (p) => {
+    setSelectedProduct({ isNew: true })
+    setFormId(`${p.id}-copie`)
+    setFormName(`${p.name} (Copie)`)
+    setFormTagline(p.tagline || '')
+    setFormDescription(p.description || '')
+    setFormIngredients(Array.isArray(p.ingredients) ? p.ingredients.join(', ') : p.ingredients || '')
+    setFormColor(p.color || 'from-rose-700 via-red-800 to-rose-900')
+    setFormEmoji(p.emoji || '🌿')
+    setFormPrice(p.price || 5)
+    setFormImage(p.image || '')
+    
+    // Parse position
+    let x = 50, y = 50
+    if (p.imagePos) {
+      const parts = p.imagePos.split(' ')
+      if (parts.length === 2) {
+        x = parseInt(parts[0]) || 50
+        y = parseInt(parts[1]) || 50
+      }
+    }
+    setPosX(x)
+    setPosY(y)
+    setZoom(p.imageZoom || 380)
+    setBrightness(p.imageBrightness ?? 100)
+    setContrast(p.imageContrast ?? 100)
+    toast.info('Recette clonée dans le formulaire ! Indiquez un ID unique avant d\'enregistrer.')
   }
 
   const handleNewProduct = () => {
@@ -169,7 +212,7 @@ export default function AdminPage() {
   const handleSave = async (e) => {
     e.preventDefault()
     if (!formId.trim() || !formName.trim()) {
-      showNotification('L\'ID et le Nom sont requis.', 'error')
+      toast.error('L\'ID et le Nom de la recette sont requis.')
       return
     }
 
@@ -189,7 +232,16 @@ export default function AdminPage() {
       image: formImage
     }
 
-    setLoading(true)
+    // Optimistic UI Update
+    const oldProducts = [...products]
+    const exists = products.some(p => p.id === payload.id)
+    const optimisticProducts = exists
+      ? products.map(p => p.id === payload.id ? { ...p, ...payload } : p)
+      : [...products, { ...payload, isOptimistic: true }]
+    
+    setProducts(optimisticProducts)
+    toast.loading('Enregistrement de la recette...', { id: 'save-product' })
+
     try {
       const res = await fetch('/api/products', {
         method: 'POST',
@@ -202,67 +254,61 @@ export default function AdminPage() {
       })
 
       if (res.ok) {
-        showNotification('Produit enregistré avec succès !')
-        // Refresh products list
-        const refreshedRes = await fetch('/api/products', {
-          headers: { 
-            'x-admin-username': username,
-            'x-admin-password': password 
-          }
-        })
+        toast.success('Recette enregistrée avec succès !', { id: 'save-product' })
+        // Fetch actual server state in background
+        const refreshedRes = await fetch('/api/products')
         const refreshedData = await refreshedRes.json()
         setProducts(refreshedData)
         
-        // Find saved product
+        // Update selected product state to clear isNew
         const saved = refreshedData.find(p => p.id === payload.id)
         if (saved) setSelectedProduct(saved)
       } else {
-        showNotification('Erreur lors de la sauvegarde.', 'error')
+        setProducts(oldProducts)
+        toast.error('Erreur lors de la sauvegarde.', { id: 'save-product' })
       }
     } catch (err) {
-      showNotification('Erreur de connexion.', 'error')
-    } finally {
-      setLoading(false)
+      setProducts(oldProducts)
+      toast.error('Erreur réseau de connexion.', { id: 'save-product' })
     }
   }
 
   const handleDelete = async (idToDelete) => {
-    if (!confirm('Voulez-vous vraiment supprimer ce produit ?')) return
+    if (!confirm('Voulez-vous vraiment supprimer définitivement cette recette ?')) return
 
-    setLoading(true)
+    // Optimistic UI Update
+    const oldProducts = [...products]
+    setProducts(products.filter(p => p.id !== idToDelete))
+    if (selectedProduct?.id === idToDelete) {
+      setSelectedProduct(null)
+    }
+    toast.loading('Suppression de la recette...', { id: 'delete-product' })
+
     try {
       const res = await fetch(`/api/products?id=${idToDelete}`, {
-          method: 'DELETE',
-          headers: { 
-            'x-admin-username': username,
-            'x-admin-password': password 
-          }
-        })
+        method: 'DELETE',
+        headers: { 
+          'x-admin-username': username,
+          'x-admin-password': password 
+        }
+      })
   
-        if (res.ok) {
-          showNotification('Produit supprimé.')
-          const refreshedRes = await fetch('/api/products', {
-            headers: { 
-              'x-admin-username': username,
-              'x-admin-password': password 
-            }
-          })
-          const refreshedData = await refreshedRes.json()
-          setProducts(refreshedData)
-        setSelectedProduct(null)
+      if (res.ok) {
+        toast.success('Recette supprimée avec succès !', { id: 'delete-product' })
       } else {
-        showNotification('Erreur lors de la suppression.', 'error')
+        setProducts(oldProducts)
+        toast.error('Erreur lors de la suppression.', { id: 'delete-product' })
       }
     } catch (err) {
-      showNotification('Erreur de connexion.', 'error')
-    } finally {
-      setLoading(false)
+      setProducts(oldProducts)
+      toast.error('Erreur réseau de connexion.', { id: 'delete-product' })
     }
   }
 
   if (!isAuth) {
     return (
       <div className="min-h-screen bg-[#0f1f18] flex items-center justify-center p-5 text-amber-50 relative overflow-hidden">
+        <Toaster position="top-center" theme="dark" richColors />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(31,58,46,0.8),transparent_70%)] pointer-events-none" />
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full glass rounded-[2rem] p-8 border border-white/10 relative z-10 shadow-2xl">
           <div className="text-center mb-8">
@@ -315,8 +361,18 @@ export default function AdminPage() {
 
   const ingredientsList = (formIngredients || '').split(',').map(i => i.trim()).filter(Boolean)
 
+  const filteredProducts = Array.isArray(products)
+    ? products.filter(Boolean).filter(p => 
+        p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.tagline?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (Array.isArray(p.ingredients) && p.ingredients.some(i => i.toLowerCase().includes(searchQuery.toLowerCase())))
+      )
+    : []
+
   return (
     <div className="min-h-screen bg-[#0f1f18] text-amber-50 p-5 md:p-8">
+      <Toaster position="top-center" theme="dark" richColors />
+      
       {/* Header */}
       <div className="max-w-7xl mx-auto flex items-center justify-between mb-8 pb-5 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -333,14 +389,29 @@ export default function AdminPage() {
         </Button>
       </div>
 
-      {/* Notifications */}
-      <AnimatePresence>
-        {notification && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full text-xs font-medium shadow-2xl border ${notification.type === 'error' ? 'bg-rose-900/90 text-rose-200 border-rose-800' : 'bg-emerald-950/90 text-emerald-200 border-emerald-800'}`}>
-            {notification.msg}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Stats row */}
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <Card className="rounded-2xl bg-black/20 border-white/10 p-5 shadow-xl flex flex-col justify-center">
+          <div className="text-amber-100/50 text-xs uppercase tracking-wider">Total Ventes</div>
+          <div className="font-serif text-2xl font-bold mt-1 text-amber-200">{stats.count}</div>
+        </Card>
+        <Card className="rounded-2xl bg-black/20 border-white/10 p-5 shadow-xl flex flex-col justify-center">
+          <div className="text-amber-100/50 text-xs uppercase tracking-wider">Chiffre d'affaires</div>
+          <div className="font-serif text-2xl font-bold mt-1 text-amber-300">
+            {Number(stats.totalRevenue || 0).toFixed(2).replace('.', ',')} €
+          </div>
+        </Card>
+        <Card className="rounded-2xl bg-black/20 border-white/10 p-5 shadow-xl flex flex-col justify-center">
+          <div className="text-amber-100/50 text-xs uppercase tracking-wider">Moyenne / Panier</div>
+          <div className="font-serif text-2xl font-bold mt-1 text-emerald-300">
+            {stats.count > 0 ? (Number(stats.totalRevenue || 0) / stats.count).toFixed(2).replace('.', ',') : '0,00'} €
+          </div>
+        </Card>
+        <Card className="rounded-2xl bg-black/20 border-white/10 p-5 shadow-xl flex flex-col justify-center">
+          <div className="text-amber-100/50 text-xs uppercase tracking-wider">Objectif Mensuel</div>
+          <div className="font-serif text-2xl font-bold mt-1 text-rose-300">1 000 €</div>
+        </Card>
+      </div>
 
       {/* Main Grid */}
       <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-8 items-start">
@@ -348,42 +419,85 @@ export default function AdminPage() {
         <div className="lg:col-span-8 space-y-6">
           {/* List Card */}
           <Card className="rounded-[2rem] bg-black/20 border-white/10 p-6 shadow-xl">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="font-serif text-lg font-bold flex items-center gap-2 text-amber-200">
                 <Sparkles className="w-4 h-4" /> Recettes de jus ({products.length})
               </h2>
+              <div className="flex items-center gap-2 flex-1 sm:max-w-xs">
+                <div className="relative w-full">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-amber-100/40" />
+                  <Input 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Rechercher une recette..." 
+                    className="h-9 pl-9 rounded-xl bg-white/5 border-white/10 text-xs placeholder:text-amber-100/30 text-amber-50 focus:ring-amber-500/20"
+                  />
+                </div>
+              </div>
               <Button onClick={handleNewProduct} className="rounded-xl bg-amber-300 hover:bg-amber-200 text-[#0f1f18] text-xs font-bold h-9">
                 <Plus className="w-4 h-4 mr-1.5" /> Créer un jus
               </Button>
             </div>
             
-            <div className="grid sm:grid-cols-2 gap-4">
-              {Array.isArray(products) && products.filter(Boolean).map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => selectProductForEdit(p)}
-                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left group ${selectedProduct?.id === p.id ? 'bg-white/10 border-amber-300/40 shadow-inner' : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/8'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{p.emoji}</span>
-                    <div>
-                      <div className="font-semibold text-sm">{p.name}</div>
-                      <div className="text-amber-100/50 text-xs mt-0.5">{p.price || 5} € • {p.imagePos || 'center'}</div>
+            {initialLoading ? (
+              <div className="grid sm:grid-cols-2 gap-4 animate-pulse">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/5 h-[72px]">
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="w-10 h-10 rounded-full bg-white/10" />
+                      <div className="space-y-2 flex-1">
+                        <div className="h-4 bg-white/10 rounded w-2/3" />
+                        <div className="h-3 bg-white/10 rounded w-1/3" />
+                      </div>
                     </div>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDelete(p.id)
-                    }}
-                    className="w-8 h-8 rounded-full hover:bg-rose-500/20 text-amber-100/50 hover:text-rose-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Supprimer"
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="text-center py-10 text-amber-100/40 text-sm">
+                Aucun produit trouvé.
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {filteredProducts.map(p => (
+                  <div
+                    key={p.id}
+                    onClick={() => selectProductForEdit(p)}
+                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left group cursor-pointer ${selectedProduct?.id === p.id ? 'bg-white/10 border-amber-300/40 shadow-inner' : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/8'}`}
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </button>
-              ))}
-            </div>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-2xl flex-shrink-0">{p.emoji}</span>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm truncate">{p.name}</div>
+                        <div className="text-amber-100/50 text-xs mt-0.5">{p.price || 5} € • {p.imagePos || 'center'}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDuplicateProduct(p)
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-amber-300/20 text-amber-100/50 hover:text-amber-300 flex items-center justify-center"
+                        title="Dupliquer (Cloner)"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDelete(p.id)
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-rose-500/20 text-amber-100/50 hover:text-rose-400 flex items-center justify-center"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Form Card */}
