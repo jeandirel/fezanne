@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import {
   Leaf, ShoppingBag, Instagram, Phone, MapPin, Clock, Moon, Sun,
   Plus, Minus, MessageCircle, Sparkles, Snowflake, Heart, Truck, Apple, QrCode,
@@ -51,14 +50,6 @@ const TESTIMONIALS = [
   { name: 'Sarah M.', text: 'Le Bissap Boost est juste incroyable. Goût authentique, fraîcheur dingue.', rating: 5, area: 'Vieux-Port' },
   { name: 'Karim D.', text: 'Je commande chaque semaine le Fresh Detox. La meilleure routine matin.', rating: 5, area: 'Castellane' },
   { name: 'Léa B.', text: 'Livraison rapide, packaging super propre, et surtout : le goût est là.', rating: 5, area: 'Cours Julien' },
-]
-
-const GALLERY_IMAGES = [
-  { title: 'Vita Orange', subtitle: 'Carotte - orange - menthe', image: '/images/atelier-vita-orange.jpeg', fit: 'object-contain', bg: 'bg-orange-50 dark:bg-orange-950/20' },
-  { title: 'Bissap Boost', subtitle: 'Bissap - ananas - menthe', image: '/images/atelier-bissap-boost.jpeg', fit: 'object-cover', bg: 'bg-rose-50 dark:bg-rose-950/20' },
-  { title: 'Fresh Detox', subtitle: 'Pomme - gingembre - citron', image: '/images/atelier-fresh-detox.jpeg', fit: 'object-cover', bg: 'bg-lime-50 dark:bg-lime-950/20' },
-  { title: 'Carte des saveurs', subtitle: "L'univers Jus Frais Maison", image: '/images/atelier-carte-saveurs.jpeg', fit: 'object-cover', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
-  { title: 'Recettes maison', subtitle: 'Quatre saveurs, même fraîcheur', image: '/images/atelier-carte-saveurs-2.jpeg', fit: 'object-cover', bg: 'bg-amber-50 dark:bg-amber-950/20' },
 ]
 
 const PRODUCT_CARD_IMAGES = {
@@ -389,19 +380,25 @@ function Saveurs({ onAdd, products }) {
 }
 
 function AtelierGallery() {
+  const highlights = [
+    { icon: Apple, title: '4 saveurs', text: 'Bissap, detox, orange et water fresh.' },
+    { icon: Snowflake, title: 'Frais du jour', text: 'Préparé, refroidi, puis livré rapidement.' },
+    { icon: MessageCircle, title: 'Commande simple', text: 'Validation directe sur WhatsApp.' },
+  ]
+
   return (
     <section id="atelier" className="py-24 md:py-32 bg-secondary/35 relative overflow-hidden">
       <FloatingLeaves />
       <div className="max-w-7xl mx-auto px-5 md:px-8 relative">
         <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-14 items-center">
           <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="max-w-xl">
-            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">Dans l'atelier</div>
-            <h2 className="font-serif text-4xl md:text-6xl font-medium tracking-tight">Les jus en <span className="italic text-[#a02440]">vrai</span>.</h2>
+            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">Repère saveurs</div>
+            <h2 className="font-serif text-4xl md:text-6xl font-medium tracking-tight">Simple à <span className="italic text-[#a02440]">choisir</span>.</h2>
             <p className="mt-5 text-base text-muted-foreground leading-relaxed">
-              Quelques images de préparation, d'ingrédients et de visuels maison pour montrer la couleur, la texture et le soin derrière chaque commande.
+              Un aperçu clair des recettes et des infos essentielles, sans répéter les photos déjà présentes sur les cartes produit.
             </p>
             <div className="mt-7 flex flex-wrap gap-2">
-              {['Ingrédients frais', 'Fait maison', 'Photos réelles'].map((label) => (
+              {['Guide clair', 'Fait maison', 'Commande rapide'].map((label) => (
                 <Badge key={label} variant="secondary" className="glass border-foreground/10 px-3 py-1.5 text-xs font-medium">
                   <Sparkles className="w-3 h-3 mr-1.5 text-[#a02440]" /> {label}
                 </Badge>
@@ -410,29 +407,28 @@ function AtelierGallery() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="min-w-0">
-            <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-              <CarouselContent className="-ml-4">
-                {GALLERY_IMAGES.map((item) => (
-                  <CarouselItem key={item.image} className="pl-4 basis-[86%] sm:basis-[62%] lg:basis-1/2">
-                    <div className="group h-full rounded-3xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-2xl transition-all duration-500">
-                      <div className={`relative aspect-[4/3] overflow-hidden ${item.bg}`}>
-                        <img src={item.image} alt={`${item.title} - Jus Frais Maison`} className={`h-full w-full ${item.fit} transition-transform duration-700 group-hover:scale-[1.03]`} />
-                        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                        <Badge className="absolute left-4 top-4 glass border-white/30 text-white text-[10px] uppercase tracking-[0.15em] px-2.5 py-1">
-                          Photo maison
-                        </Badge>
-                      </div>
-                      <div className="p-5">
-                        <div className="font-serif text-2xl font-medium">{item.title}</div>
-                        <div className="text-sm text-muted-foreground mt-1">{item.subtitle}</div>
-                      </div>
+            <div className="grid md:grid-cols-[1.15fr_0.85fr] gap-5 items-stretch">
+              <div className="self-start rounded-3xl overflow-hidden border border-border bg-card shadow-xl">
+                <div className="relative aspect-[16/9] bg-emerald-50 dark:bg-emerald-950/20">
+                  <img src="/images/brand-guide-wide.jpeg" alt="Guide des saveurs Jus Frais Maison" className="h-full w-full object-cover object-center" />
+                  <Badge className="absolute left-4 top-4 glass border-white/30 text-white text-[10px] uppercase tracking-[0.15em] px-2.5 py-1">
+                    Guide saveurs
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                {highlights.map((item) => (
+                  <div key={item.title} className="rounded-3xl p-5 bg-card border border-border">
+                    <div className="w-11 h-11 rounded-2xl bg-[#1f3a2e] text-amber-50 flex items-center justify-center mb-4">
+                      <item.icon className="w-5 h-5" />
                     </div>
-                  </CarouselItem>
+                    <div className="font-serif text-xl font-medium">{item.title}</div>
+                    <p className="text-sm text-muted-foreground mt-1">{item.text}</p>
+                  </div>
                 ))}
-              </CarouselContent>
-              <CarouselPrevious className="left-3 top-[42%] h-10 w-10 border-white/70 bg-white/85 text-[#1f3a2e] hover:bg-white dark:border-amber-50/10 dark:bg-[#1f3a2e]/85 dark:text-amber-50" />
-              <CarouselNext className="right-3 top-[42%] h-10 w-10 border-white/70 bg-white/85 text-[#1f3a2e] hover:bg-white dark:border-amber-50/10 dark:bg-[#1f3a2e]/85 dark:text-amber-50" />
-            </Carousel>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
