@@ -61,6 +61,13 @@ const GALLERY_IMAGES = [
   { title: 'Recettes maison', subtitle: 'Quatre saveurs, même fraîcheur', image: '/images/atelier-carte-saveurs-2.jpeg', fit: 'object-cover', bg: 'bg-amber-50 dark:bg-amber-950/20' },
 ]
 
+const PRODUCT_CARD_IMAGES = {
+  bissap: { image: '/images/atelier-bissap-boost.jpeg', position: '57% 50%' },
+  detox: { image: '/images/atelier-fresh-detox.jpeg', position: '30% 50%' },
+  vita: { image: '/images/atelier-vita-orange.jpeg', position: '50% 50%' },
+  water: { image: '/images/product-water-fresh.jpeg', position: '18% 50%' },
+}
+
 const DAY_OPTIONS = ['Lundi', 'Mercredi', 'Vendredi', 'Samedi', 'Dimanche']
 const SLOTS_BY_DAY = {
   'Lundi': ['18h — 19h'],
@@ -314,20 +321,23 @@ function ProductCard({ p, idx, onAdd }) {
   }
 
   const price = p.price || format.price
+  const fallbackCardImage = PRODUCT_CARD_IMAGES[p.id] || {}
+  const cardImage = p.image || fallbackCardImage.image || HERO_IMG
+  const cardImagePosition = p.image ? (p.imagePos || 'center') : (fallbackCardImage.position || 'center')
 
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ delay: idx * 0.08, duration: 0.6 }} whileHover={{ y: -4 }} className="group">
       <Card className="overflow-hidden border-foreground/10 rounded-3xl bg-card hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
-        <div
-          className={`relative aspect-[4/5] bg-gradient-to-br ${p.color} overflow-hidden`}
-          style={{
-            backgroundImage: `url(${p.image || HERO_IMG})`,
-            backgroundSize: p.imageZoom ? `${p.imageZoom}% auto` : '380% auto',
-            backgroundPosition: p.imagePos,
-            backgroundRepeat: 'no-repeat',
-            filter: `brightness(${p.imageBrightness ?? 100}%) contrast(${p.imageContrast ?? 100}%)`,
-          }}
-        >
+        <div className={`relative aspect-[4/5] bg-gradient-to-br ${p.color} overflow-hidden`}>
+          <img
+            src={cardImage}
+            alt={`${p.name} - Jus Frais Maison`}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{
+              objectPosition: cardImagePosition,
+              filter: `brightness(${p.imageBrightness ?? 100}%) contrast(${p.imageContrast ?? 100}%)`,
+            }}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/10" />
           <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
             <Badge className="glass border-white/30 text-white text-[10px] uppercase tracking-[0.15em] px-2.5 py-1">{p.tagline}</Badge>
