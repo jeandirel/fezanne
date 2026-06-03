@@ -17,7 +17,7 @@ import {
 
 const WHATSAPP_NUMBER = '33650711629'
 const INSTAGRAM_URL = 'https://instagram.com/jusfraismaison'
-const HERO_IMG = 'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg'
+const HERO_IMG = '/images/jus-hero.jpeg'
 const CUSTOMER_REVIEW_IMAGE = '/images/avis-clients.jpeg'
 
 const PRODUCTS = [
