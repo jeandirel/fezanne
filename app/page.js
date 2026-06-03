@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import {
   Leaf, ShoppingBag, Instagram, Phone, MapPin, Clock, Moon, Sun,
   Plus, Minus, MessageCircle, Sparkles, Snowflake, Heart, Truck, Apple, QrCode,
@@ -17,6 +18,7 @@ import {
 const WHATSAPP_NUMBER = '33650711629'
 const INSTAGRAM_URL = 'https://instagram.com/jusfraismaison'
 const HERO_IMG = 'https://customer-assets.emergentagent.com/job_jus-frais-marseille/artifacts/7jovrgtv_WhatsApp%20Image%202026-05-31%20at%2019.09.04%20%286%29.jpeg'
+const CUSTOMER_REVIEW_IMAGE = '/images/avis-clients.jpeg'
 
 const PRODUCTS = [
   { id: 'bissap', name: 'Bissap Boost', tagline: 'Énergie tropicale', description: "Le rouge profond de l'hibiscus, l'éclat de l'ananas et la fraîcheur de la menthe.", ingredients: ['Bissap', 'Ananas', 'Menthe'], color: 'from-rose-700 via-red-800 to-rose-900', imagePos: '61% 72%', emoji: '🌺' },
@@ -49,6 +51,14 @@ const TESTIMONIALS = [
   { name: 'Sarah M.', text: 'Le Bissap Boost est juste incroyable. Goût authentique, fraîcheur dingue.', rating: 5, area: 'Vieux-Port' },
   { name: 'Karim D.', text: 'Je commande chaque semaine le Fresh Detox. La meilleure routine matin.', rating: 5, area: 'Castellane' },
   { name: 'Léa B.', text: 'Livraison rapide, packaging super propre, et surtout : le goût est là.', rating: 5, area: 'Cours Julien' },
+]
+
+const GALLERY_IMAGES = [
+  { title: 'Vita Orange', subtitle: 'Carotte - orange - menthe', image: '/images/atelier-vita-orange.jpeg', fit: 'object-contain', bg: 'bg-orange-50 dark:bg-orange-950/20' },
+  { title: 'Bissap Boost', subtitle: 'Bissap - ananas - menthe', image: '/images/atelier-bissap-boost.jpeg', fit: 'object-cover', bg: 'bg-rose-50 dark:bg-rose-950/20' },
+  { title: 'Fresh Detox', subtitle: 'Pomme - gingembre - citron', image: '/images/atelier-fresh-detox.jpeg', fit: 'object-cover', bg: 'bg-lime-50 dark:bg-lime-950/20' },
+  { title: 'Carte des saveurs', subtitle: "L'univers Jus Frais Maison", image: '/images/atelier-carte-saveurs.jpeg', fit: 'object-cover', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
+  { title: 'Recettes maison', subtitle: 'Quatre saveurs, même fraîcheur', image: '/images/atelier-carte-saveurs-2.jpeg', fit: 'object-cover', bg: 'bg-amber-50 dark:bg-amber-950/20' },
 ]
 
 const DAY_OPTIONS = ['Lundi', 'Mercredi', 'Vendredi', 'Samedi', 'Dimanche']
@@ -368,6 +378,58 @@ function Saveurs({ onAdd, products }) {
   )
 }
 
+function AtelierGallery() {
+  return (
+    <section id="atelier" className="py-24 md:py-32 bg-secondary/35 relative overflow-hidden">
+      <FloatingLeaves />
+      <div className="max-w-7xl mx-auto px-5 md:px-8 relative">
+        <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-14 items-center">
+          <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="max-w-xl">
+            <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">Dans l'atelier</div>
+            <h2 className="font-serif text-4xl md:text-6xl font-medium tracking-tight">Les jus en <span className="italic text-[#a02440]">vrai</span>.</h2>
+            <p className="mt-5 text-base text-muted-foreground leading-relaxed">
+              Quelques images de préparation, d'ingrédients et de visuels maison pour montrer la couleur, la texture et le soin derrière chaque commande.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-2">
+              {['Ingrédients frais', 'Fait maison', 'Photos réelles'].map((label) => (
+                <Badge key={label} variant="secondary" className="glass border-foreground/10 px-3 py-1.5 text-xs font-medium">
+                  <Sparkles className="w-3 h-3 mr-1.5 text-[#a02440]" /> {label}
+                </Badge>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="min-w-0">
+            <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+              <CarouselContent className="-ml-4">
+                {GALLERY_IMAGES.map((item) => (
+                  <CarouselItem key={item.image} className="pl-4 basis-[86%] sm:basis-[62%] lg:basis-1/2">
+                    <div className="group h-full rounded-3xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-2xl transition-all duration-500">
+                      <div className={`relative aspect-[4/3] overflow-hidden ${item.bg}`}>
+                        <img src={item.image} alt={`${item.title} - Jus Frais Maison`} className={`h-full w-full ${item.fit} transition-transform duration-700 group-hover:scale-[1.03]`} />
+                        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        <Badge className="absolute left-4 top-4 glass border-white/30 text-white text-[10px] uppercase tracking-[0.15em] px-2.5 py-1">
+                          Photo maison
+                        </Badge>
+                      </div>
+                      <div className="p-5">
+                        <div className="font-serif text-2xl font-medium">{item.title}</div>
+                        <div className="text-sm text-muted-foreground mt-1">{item.subtitle}</div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-3 top-[42%] h-10 w-10 border-white/70 bg-white/85 text-[#1f3a2e] hover:bg-white dark:border-amber-50/10 dark:bg-[#1f3a2e]/85 dark:text-amber-50" />
+              <CarouselNext className="right-3 top-[42%] h-10 w-10 border-white/70 bg-white/85 text-[#1f3a2e] hover:bg-white dark:border-amber-50/10 dark:bg-[#1f3a2e]/85 dark:text-amber-50" />
+            </Carousel>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function Formats() {
   return (
     <section id="formats" className="py-24 md:py-32 bg-secondary/40 relative overflow-hidden">
@@ -473,28 +535,47 @@ function Livraison() {
 
 function Testimonials() {
   return (
-    <section className="py-24 md:py-28">
+    <section id="avis" className="py-24 md:py-28 bg-secondary/30">
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
           <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">Avis clients</div>
           <h2 className="font-serif text-4xl md:text-5xl font-medium tracking-tight">Marseille adore.</h2>
         </motion.div>
-        <div className="grid md:grid-cols-3 gap-5">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.div key={t.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="rounded-3xl p-7 bg-card border border-border">
-              <div className="flex gap-0.5 mb-4 text-amber-500">
-                {[...Array(t.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+
+        <div className="grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.1fr)] gap-6 lg:gap-8 items-stretch">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-3xl p-3 sm:p-4 bg-card border border-border shadow-xl">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.35rem] bg-secondary">
+              <img src={CUSTOMER_REVIEW_IMAGE} alt="Retour client WhatsApp sur le Bissap Boost" className="h-full w-full object-cover" />
+              <Badge className="absolute left-4 top-4 border-white/50 bg-white/85 text-[#1f3a2e] hover:bg-white/85 dark:bg-[#1f3a2e]/90 dark:text-amber-50 dark:border-amber-50/10">
+                <Heart className="w-3 h-3 mr-1.5 fill-current text-[#a02440]" /> Retour client
+              </Badge>
+            </div>
+            <div className="p-4 sm:p-5">
+              <div className="flex gap-0.5 mb-3 text-amber-500">
+                {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
               </div>
-              <p className="font-serif text-lg leading-snug mb-5">“{t.text}”</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1f3a2e] to-[#a02440] flex items-center justify-center text-amber-50 text-sm font-semibold">{t.name[0]}</div>
-                <div>
-                  <div className="font-medium text-sm">{t.name}</div>
-                  <div className="text-xs text-muted-foreground">{t.area} • Marseille</div>
+              <p className="font-serif text-2xl md:text-3xl leading-tight">"Ton Bissap est tres bon"</p>
+              <p className="text-sm text-muted-foreground mt-3">Un vrai message client, recu apres une commande de Bissap Boost.</p>
+            </div>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 lg:grid-cols-1 gap-5">
+            {TESTIMONIALS.map((t, i) => (
+              <motion.div key={t.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="rounded-3xl p-7 bg-card border border-border">
+                <div className="flex gap-0.5 mb-4 text-amber-500">
+                  {[...Array(t.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                 </div>
-              </div>
-            </motion.div>
-          ))}
+                <p className="font-serif text-lg leading-snug mb-5">"{t.text}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1f3a2e] to-[#a02440] flex items-center justify-center text-amber-50 text-sm font-semibold">{t.name[0]}</div>
+                  <div>
+                    <div className="font-medium text-sm">{t.name}</div>
+                    <div className="text-xs text-muted-foreground">{t.area} - Marseille</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -863,6 +944,7 @@ function App() {
         <Navbar dark={dark} setDark={setDark} openMenu={openMenu} setOpenMenu={setOpenMenu} onOpenCart={() => setCartOpen(true)} cartCount={cart.count} />
         <Hero onOpenCart={() => setCartOpen(true)} onScrollSaveurs={scrollSaveurs} />
         <Saveurs onAdd={handleAdd} products={displayProducts} />
+        <AtelierGallery />
         <Formats />
         <Pourquoi />
         <Livraison />
