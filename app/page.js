@@ -16,6 +16,7 @@ import {
 
 const WHATSAPP_NUMBER = '33650711629'
 const INSTAGRAM_URL = 'https://instagram.com/jusfraismaison'
+const WHATSAPP_ORDER_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Bonjour Jus Frais Maison, je souhaite passer une commande.')}`
 const HERO_IMG = '/images/jus-hero.jpeg'
 const CUSTOMER_REVIEW_IMAGE = '/images/avis-clients.jpeg'
 
@@ -486,7 +487,7 @@ function Pourquoi() {
 }
 
 function Livraison() {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&bgcolor=ffffff&color=1f3a2e&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_BASE_URL || ''))}`
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=14&bgcolor=ffffff&color=1f3a2e&data=${encodeURIComponent(WHATSAPP_ORDER_URL)}`
   return (
     <section id="livraison" className="py-24 md:py-32 bg-[#1f3a2e] text-amber-50 relative overflow-hidden">
       <div className="absolute inset-0 opacity-10">
@@ -527,11 +528,18 @@ function Livraison() {
               <QrCode className="w-3 h-3" /> Scan & commande
             </div>
             <div className="font-serif text-3xl md:text-4xl mb-3">Commandez en 1 scan</div>
-            <p className="text-amber-100/70 text-sm mb-7 max-w-sm mx-auto">Partagez ce QR code pour accéder directement à notre site et passer commande.</p>
-            <div className="inline-block p-4 bg-white rounded-2xl shadow-2xl">
-              <img src={qrUrl} alt="QR site" className="w-48 h-48 md:w-56 md:h-56" />
+            <p className="text-amber-100/70 text-sm mb-7 max-w-sm mx-auto">Scannez ce QR code pour ouvrir WhatsApp avec un message de commande prêt à envoyer.</p>
+            <a href={WHATSAPP_ORDER_URL} target="_blank" rel="noreferrer" className="inline-block p-4 bg-white rounded-2xl shadow-2xl transition-transform hover:scale-[1.02]" aria-label="Commander sur WhatsApp avec le QR code">
+              <img src={qrUrl} alt="QR WhatsApp pour commander Jus Frais Maison" className="w-48 h-48 md:w-56 md:h-56" />
+            </a>
+            <div className="mt-6 flex justify-center">
+              <Button asChild className="rounded-full bg-[#25D366] hover:bg-[#1ebe5b] text-white btn-shine">
+                <a href={WHATSAPP_ORDER_URL} target="_blank" rel="noreferrer">
+                  <MessageCircle className="w-4 h-4 mr-2" /> Commander sur WhatsApp
+                </a>
+              </Button>
             </div>
-            <div className="mt-6 text-sm text-amber-100/80">WhatsApp : +33 6 50 71 16 29</div>
+            <div className="mt-4 text-sm text-amber-100/80">WhatsApp : +33 6 50 71 16 29</div>
           </motion.div>
         </div>
       </div>
