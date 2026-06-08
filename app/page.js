@@ -19,9 +19,13 @@ const INSTAGRAM_URL = 'https://instagram.com/jusfraismaison'
 const WHATSAPP_ORDER_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Bonjour Jus Frais Maison, je souhaite passer une commande.')}`
 const HERO_IMG = '/images/jus-hero.jpeg'
 const CUSTOMER_REVIEW_IMAGE = '/images/avis-clients.jpeg'
+const BISSAP_PRODUCT_IMAGES = [
+  { src: '/images/bissap-carousel-2.jpeg', alt: 'Présentation du Bissap Boost énergie tropicale' },
+]
+const BISSAP_PRODUCT_IMAGE_DELAY = 7000
 
 const PRODUCTS = [
-  { id: 'bissap', name: 'Bissap Boost', tagline: 'Énergie tropicale', description: "Le rouge profond de l'hibiscus, l'éclat de l'ananas et la fraîcheur de la menthe.", ingredients: ['Bissap', 'Ananas', 'Menthe'], color: 'from-rose-700 via-red-800 to-rose-900', imagePos: '61% 72%', emoji: '🌺' },
+  { id: 'bissap', name: 'Bissap Boost', tagline: 'Énergie tropicale', description: "Oseille d'Afrique, ananas et menthe. Volume 380 ML, à boire pur ou dilué.", ingredients: ['Bissap', 'Ananas', 'Menthe'], color: 'from-rose-700 via-red-800 to-rose-900', imagePos: '61% 72%', emoji: '🌺' },
   { id: 'detox', name: 'Fresh Detox', tagline: 'Purifiant & vif', description: 'Pomme verte, gingembre piquant, citron éclatant et menthe fraîche. La detox premium.', ingredients: ['Pomme', 'Gingembre', 'Citron', 'Menthe'], color: 'from-lime-500 via-yellow-500 to-amber-600', imagePos: '16% 72%', emoji: '🍏' },
   { id: 'vita', name: 'Vita Orange', tagline: 'Vitamine pure', description: 'Carotte sucrée, orange juteuse et touche de menthe. Le boost solaire matinal.', ingredients: ['Carotte', 'Orange', 'Menthe'], color: 'from-orange-400 via-amber-500 to-orange-600', imagePos: '39% 72%', emoji: '🍊' },
   { id: 'water', name: 'Water Fresh', tagline: 'Hydratation extrême', description: 'Pastèque juteuse, citron pétillant et menthe glaciale. La fraîcheur ultime de l\u0027été.', ingredients: ['Pastèque', 'Citron', 'Menthe'], color: 'from-pink-500 via-rose-500 to-red-600', imagePos: '84% 72%', emoji: '🍉' },
@@ -304,6 +308,17 @@ function ProductCard({ p, idx, onAdd }) {
   const [format, setFormat] = useState(FORMATS[0])
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
+  const [bissapImageIndex, setBissapImageIndex] = useState(0)
+
+  useEffect(() => {
+    if (p.id !== 'bissap') return
+
+    const timer = setInterval(() => {
+      setBissapImageIndex((current) => (current + 1) % BISSAP_PRODUCT_IMAGES.length)
+    }, BISSAP_PRODUCT_IMAGE_DELAY)
+
+    return () => clearInterval(timer)
+  }, [p.id])
 
   const handleAdd = () => {
     onAdd(p, format, qty)
@@ -314,22 +329,32 @@ function ProductCard({ p, idx, onAdd }) {
 
   const price = p.price || format.price
   const fallbackCardImage = PRODUCT_CARD_IMAGES[p.id] || {}
-  const cardImage = p.image || fallbackCardImage.image || HERO_IMG
-  const cardImagePosition = p.image ? (p.imagePos || 'center') : (fallbackCardImage.position || 'center')
+  const bissapImage = BISSAP_PRODUCT_IMAGES[bissapImageIndex]
+  const cardImage = p.id === 'bissap' ? bissapImage.src : (p.image || fallbackCardImage.image || HERO_IMG)
+  const cardImagePosition = p.id === 'bissap' ? 'center top' : (p.image ? (p.imagePos || 'center') : (fallbackCardImage.position || 'center'))
+  const cardImageAlt = p.id === 'bissap' ? bissapImage.alt : `${p.name} - Jus Frais Maison`
 
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ delay: idx * 0.08, duration: 0.6 }} whileHover={{ y: -4 }} className="group">
       <Card className="overflow-hidden border-foreground/10 rounded-3xl bg-card hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
-        <div className={`relative aspect-[4/5] bg-gradient-to-br ${p.color} overflow-hidden`}>
-          <img
-            src={cardImage}
-            alt={`${p.name} - Jus Frais Maison`}
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{
-              objectPosition: cardImagePosition,
-              filter: `brightness(${p.imageBrightness ?? 100}%) contrast(${p.imageContrast ?? 100}%)`,
-            }}
-          />
+        <div className={`relative aspect-[4/5] bg-gradient-to-br ${p.id === 'bissap' ? 'bg-white' : p.color} overflow-hidden`}>
+          <AnimatePresence initial={false}>
+            <motion.img
+              key={cardImage}
+              src={cardImage}
+              alt={cardImageAlt}
+              initial={p.id === 'bissap' ? { opacity: 0, scale: 1.015 } : false}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={p.id === 'bissap' ? { opacity: 0 } : undefined}
+              transition={{ duration: 0.55, ease: 'easeInOut' }}
+              className={`absolute inset-0 h-full w-full ${p.id === 'bissap' ? 'object-contain' : 'object-cover'}`}
+              style={{
+                objectPosition: cardImagePosition,
+                filter: `brightness(${p.imageBrightness ?? 100}%) contrast(${p.imageContrast ?? 100}%)`,
+              }}
+              draggable={false}
+            />
+          </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/10" />
           <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
             <Badge className="glass border-white/30 text-white text-[10px] uppercase tracking-[0.15em] px-2.5 py-1">{p.tagline}</Badge>
@@ -345,7 +370,7 @@ function ProductCard({ p, idx, onAdd }) {
           </div>
         </div>
         <div className="p-5 flex flex-col flex-1">
-          <p className="text-sm text-muted-foreground mb-4">{p.description}</p>
+          <p className="text-sm text-muted-foreground mb-4 whitespace-pre-line leading-relaxed">{p.description}</p>
 
           {/* Qty + add */}
           <div className="flex items-center gap-2 mt-auto">
