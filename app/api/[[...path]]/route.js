@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
+import { DEFAULT_SETTINGS } from '@/lib/defaultSettings'
 
 const defaultProducts = [
   { id: 'bissap', name: 'Bissap Boost', tagline: 'Énergie tropicale', description: "Le rouge profond de l'hibiscus, l'éclat de l'ananas et la fraîcheur de la menthe.", ingredients: ['Bissap', 'Ananas', 'Menthe'], color: 'from-rose-700 via-red-800 to-rose-900', imagePos: '61% 72%', emoji: '🌺', price: 5, imageZoom: 380, imageBrightness: 100, imageContrast: 100, image: '' },
@@ -69,6 +70,19 @@ export async function GET(request, { params }) {
       return json(data)
     }
 
+    if (path === 'settings') {
+      if (!supabase) return json(DEFAULT_SETTINGS)
+
+      const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'site_settings')
+        .single()
+
+      if (error || !data) return json(DEFAULT_SETTINGS)
+      return json({ ...DEFAULT_SETTINGS, ...data.value })
+    }
+
     if (path === 'orders') {
       if (!checkAuth(request)) {
         return json({ error: 'unauthorized' }, 401)
@@ -125,6 +139,21 @@ export async function POST(request, { params }) {
         return json({ ok: true })
       }
       return json({ error: 'unauthorized' }, 401)
+    }
+
+    if (path === 'settings') {
+      if (!checkAuth(request)) return json({ error: 'unauthorized' }, 401)
+
+      const body = await request.json()
+
+      if (!supabase) return json({ ok: true })
+
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ key: 'site_settings', value: body })
+
+      if (error) throw new Error(error.message)
+      return json({ ok: true })
     }
 
     if (path === 'products') {
