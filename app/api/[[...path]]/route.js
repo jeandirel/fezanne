@@ -69,6 +69,28 @@ export async function GET(request, { params }) {
       return json(data)
     }
 
+    if (path === 'orders') {
+      if (!checkAuth(request)) {
+        return json({ error: 'unauthorized' }, 401)
+      }
+
+      if (!supabase) {
+        return json([])
+      }
+
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('createdAt', { ascending: false })
+
+      if (error) {
+        console.error('Supabase orders error:', error.message)
+        return json([])
+      }
+
+      return json(data || [])
+    }
+
     if (path === 'orders/stats') {
       if (!supabase) {
         return json({ count: 0, totalRevenue: 0 })
