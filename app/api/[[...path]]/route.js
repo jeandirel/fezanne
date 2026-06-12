@@ -46,7 +46,7 @@ export async function GET(request, { params }) {
       }
 
       const { data, error } = await supabase
-        .from('products')
+        .from('jfm_products')
         .select('*')
 
       if (error) {
@@ -57,7 +57,7 @@ export async function GET(request, { params }) {
       if (!data || data.length === 0) {
         // Seed default products
         const { error: seedError } = await supabase
-          .from('products')
+          .from('jfm_products')
           .insert(defaultProducts)
         
         if (seedError) {
@@ -74,7 +74,7 @@ export async function GET(request, { params }) {
       if (!supabase) return json(DEFAULT_SETTINGS)
 
       const { data, error } = await supabase
-        .from('settings')
+        .from('jfm_settings')
         .select('value')
         .eq('key', 'site_settings')
         .single()
@@ -93,7 +93,7 @@ export async function GET(request, { params }) {
       }
 
       const { data, error } = await supabase
-        .from('orders')
+        .from('jfm_orders')
         .select('*')
         .order('createdAt', { ascending: false })
 
@@ -111,7 +111,7 @@ export async function GET(request, { params }) {
       }
 
       const { data, error } = await supabase
-        .from('orders')
+        .from('jfm_orders')
         .select('total')
 
       if (error) {
@@ -149,7 +149,7 @@ export async function POST(request, { params }) {
       if (!supabase) return json({ ok: true })
 
       const { error } = await supabase
-        .from('settings')
+        .from('jfm_settings')
         .upsert({ key: 'site_settings', value: body })
 
       if (error) throw new Error(error.message)
@@ -186,7 +186,7 @@ export async function POST(request, { params }) {
       }
 
       const { error } = await supabase
-        .from('products')
+        .from('jfm_products')
         .upsert(product)
 
       if (error) throw new Error(error.message)
@@ -209,7 +209,7 @@ export async function POST(request, { params }) {
       }
 
       const { error } = await supabase
-        .from('orders')
+        .from('jfm_orders')
         .insert(order)
 
       if (error) throw new Error(error.message)
@@ -243,7 +243,7 @@ export async function DELETE(request, { params }) {
       }
 
       const { error } = await supabase
-        .from('products')
+        .from('jfm_products')
         .delete()
         .eq('id', id)
 
