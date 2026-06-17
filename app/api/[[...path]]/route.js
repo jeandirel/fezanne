@@ -188,6 +188,37 @@ export async function POST(request, { params }) {
       return json({ ok: true, product })
     }
 
+    if (path === 'admin/upload') {
+      if (!checkAuth(request)) {
+        return json({ error: 'unauthorized' }, 401)
+      }
+
+      if (!supabase) {
+        return json({ error: 'storage_not_configured' }, 503)
+      }
+
+      const formData = await request.formData()
+      const file = formData.get('file')
+      if (!file) return json({ error: 'no_file' }, 400)
+
+      const ext = file.name.split('.').pop().toLowerCase()
+      const fileName = `products/${uuidv4()}.${ext}`
+      const arrayBuffer = await file.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, buffer, { contentType: file.type, upsert: false })
+
+      if (uploadError) throw new Error(uploadError.message)
+
+      const { data: urlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName)
+
+      return json({ ok: true, url: urlData.publicUrl })
+    }
+
     if (path === 'orders') {
       const body = await request.json()
       const order = {
